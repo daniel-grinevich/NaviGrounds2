@@ -1,0 +1,14 @@
+body {
+    margin:0;
+    padding:0;
+    background-color: #FEFEF6;
+}
+.bg-brand-blue {
+    background-color: #007AF0 ;
+}
+.bg-brand-green {
+    background-color:#004D38;
+}
+.bg-secondary-green {
+    background-color: #0DAB76;
+}
