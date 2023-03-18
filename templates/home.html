@@ -20,24 +20,62 @@
                     <p class="text-white md:text-2xl text-xl md:leading-tight antialiased md:mt-auto">
                         If you are looking at this app from my resume then please give me a job!
                     </p>
-                    <a href="{% url 'admin:login' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full text-center">Sign into NaviGrounds!</a>
+                    <a href="{% url 'admin:login' %}" class="bg-brand-green hover:bg-white hover:text-black text-white font-bold py-2 px-4 rounded w-full text-center">Sign into NaviGrounds!</a>
                 </div>
             </div>
-            <div class="bg-brand-green rounded-xl overflow-hidden p-5 md:p-10 relative z-10 aspect-square bg-brand-green md:col-span-1 md:aspect-auto md:w-2/3">
-                <div class="h-full grid grid-cols-3 grid-rows-3 gap-4 place-items-center">
-                    <div class="w-full h-full bg-gray-400"></div>
-                    <div class="w-full h-full bg-gray-400"></div>
-                    <div class="w-full h-full bg-gray-400"></div>
-                    <div class="w-full h-full bg-gray-400"></div>
-                    <div class="w-full h-full bg-gray-400"></div>
-                    <div class="w-full h-full bg-gray-400"></div>
-                    <div class="w-full h-full bg-gray-400"></div>
-                    <div class="w-full h-full bg-gray-400"></div>
-                    <div class="w-full h-full bg-gray-400"></div>
+            <div class="rounded-xl py-5 overflow-hidden relative z-10 aspect-square md:col-span-1 md:aspect-auto md:w-2/3">
+                <div class="grid grid-cols-3 gap-3 md:pl-5 sm:pl-0 w-full h-full">
+                    {% load static %}
+                    <div class="bg-gray-200 w-auto h-full rounded-xl">
+                        <a class="h-full w-full" href="{% url 'admin:login' %}">
+                            <img src={% static 'images/tax_app_img.svg' %} class="w-full rounded-xl">
+                        </a>
+                        <h6>Tax App</h6>
+                    </div>
+                    <div class="bg-gray-200 w-auto h-full">
+                        <a class="h-full w-full">
+                            <img src={% static 'images/tax_app_img.svg' %} class="w-full rounded-xl">
+                        </a>
+                    </div>
+                    <div class="bg-gray-200 w-auto h-full">
+                        <a class="h-full w-full">
+                            <img src={% static 'images/tax_app_img.svg' %} class="w-full rounded-xl">
+                        </a>
+                    </div>
+                    <div class="bg-gray-200 w-auto h-full">
+                        <a class="h-full w-full">
+                            <img src={% static 'images/tax_app_img.svg' %} class="w-full rounded-xl">
+                        </a>
+                    </div>
+                    <div class="bg-gray-200 w-auto h-full">
+                        <a class="h-full w-full">
+                            <img src={% static 'images/tax_app_img.svg' %} class="w-full rounded-xl">
+                        </a>
+                    </div>
+                    <div class="bg-gray-200 w-auto h-full">
+                        <a class="h-full w-full">
+                            <img src={% static 'images/tax_app_img.svg' %} class="w-full rounded-xl">
+                        </a>
+                    </div>
+                    <div class="bg-gray-200 w-auto h-full">
+                        <a class="h-full w-full">
+                            <img src={% static 'images/tax_app_img.svg' %} class="w-full rounded-xl">
+                        </a>
+                    </div>
+                    <div class="bg-gray-200 w-auto h-full">
+                        <a class="h-full w-full">
+                            <img src={% static 'images/tax_app_img.svg' %} class="w-full rounded-xl">
+                        </a>
+                    </div>
+                    <div class="bg-gray-200 w-auto h-full">
+                        <a class="h-full w-full">
+                            <img src={% static 'images/tax_app_img.svg' %} class="w-full rounded-xl">
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="block h-20 bg-brand-green">
+        <div class="rounded-xl block h-40 bg-brand-green">
         </div>
     </section>
 {% endblock content %}

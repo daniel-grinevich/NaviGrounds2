@@ -12,3 +12,16 @@ body {
 .bg-secondary-green {
     background-color: #0DAB76;
 }
+.flex-apps {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 1em;
+    padding: 3em;
+}
+.app-box {
+    flex-basis: 30%;
+    height: 100px;
+    border: 1px solid black;
+    box-sizing: border-box;
+}
