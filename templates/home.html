@@ -21,7 +21,8 @@
                         If you are looking at this app from my resume then please give me a job!
                     </p>
                     {% if user.is_authenticated %}
-                        <a href="{% url 'admin:login' %}" class="bg-brand-green hover:bg-white hover:text-black text-white font-bold py-2 px-4 rounded w-full text-center">Hello {{user.email}}!</a>
+                        <a href="{% url 'admin:login' %}" class="bg-brand-green hover:bg-white hover:text-black text-white font-bold py-2 px-4 rounded w-full text-center">Hello {{user.username}}!</a>
+                        <a href="{% url 'logout' %}" class="bg-brand-green hover:bg-white hover:text-black text-white font-bold py-2 px-4 rounded w-full text-center">Logout!</a>
                     {% else %}
                         <a href="{% url 'admin:login' %}" class="bg-brand-green hover:bg-white hover:text-black text-white font-bold py-2 px-4 rounded w-full text-center">Sign into NaviGrounds!</a>
                     {% endif %}
