@@ -31,7 +31,7 @@ class AboutPageTests(SimpleTestCase):
         self.assertEqual(self.response.status_code, 200)
     
     def test_aboutpage_template(self):
-        self.assertTeamplateUsed(self.response, 'about.html')
+        self.assertTemplateUsed(self.response, 'about.html')
     
     def test_aboutpage_contains_correct_html(self):
         self.assertContains(self.response, 'About Page')

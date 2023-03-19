@@ -9,6 +9,9 @@ services:
       - .:/NaviGrounds2
     depends_on:
       - db
+    environment:
+      - 'DJANGO_SECRET_KEY=django-insecure-p-g+g^=$$de(4=_nlw0zw5w(1k80i$$kn@kn@mw7vac0z!3#@evz'
+      - 'DJANGO_DEBUG=True'
   db:
     image: postgres:13
     volumes:
