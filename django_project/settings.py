@@ -161,7 +161,5 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
+DEFAULT_FROM_EMAIL = 'admin@NaviGrounds.com'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-
-
