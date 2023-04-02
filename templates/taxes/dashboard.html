@@ -1,0 +1,702 @@
+{% extends "_base.html" %}
+{% load tailwind_filters %}
+
+
+{% block title%}Tax App{% endblock title%}
+
+{% block content %}
+{% comment %} Navigation Bar {% endcomment %}
+<div class="flex gap-1 flex-row">
+    <div class="rounded-xl overflow-hidden p-5 md:p-10 flex h-full w-2/3 items-center bg-brand-green font-bold leading-none sm:w-auto md:justify-start md:px-10 md:text-lg md:leading-none">
+        <h3 class="text-white">Tax App</h3>
+    </div>
+    <div class="rounded-xl overflow-hidden p-5 md:p-10 hidden flex-grow bg-brand-green sm:block"></div>
+    <button class="inline-flex items-center gap-2 xl:gap-5 group rounded-full text-white py-.5 hover:bg-black hover:text-white antialiased transition-colors text-xl w-1/3 justify-center bg-secondary-green px-10 sm:w-auto">Menu</button>
+</div>
+
+{% comment %} Top Dashboard Flex Grid {% endcomment %}
+<div class="flex flex-wrap h-full mt-3">
+    <div class="p-2 w-full md:w-1/2 h-1/2 md:h-full">
+        <div class="bg-white rounded-xl border border-gray-300 h-full">
+            <canvas class="w-full h-full" id="myChart"></canvas>
+        </div>
+    </div>
+    <div class="w-full md:w-1/2 flex flex-wrap">
+        <div class="w-full h-1/2 p-2">
+            <div class="p-4 bg-white h-full rounded-xl border border-gray-300">
+                <h1 class="w-full font-bold">User Spending:</h1>
+                <div class="flex flex-col mt-3">
+                    <div class="flex justify-between items-center">
+                        <div class="mr-3">
+                            <p>Daniel Grinevich</p>
+                            <p>$125</p>
+                        </div>
+                        <div class="mr-3">
+                            <p>Daniel Grinevich</p>
+                            <p>$125</p>
+                        </div>
+                        <div class="mr-3">
+                            <p>Daniel Grinevich</p>
+                            <p>$125</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="w-full h-1/2 p-2">
+            <div class="pl-4 pt-2 bg-white h-full rounded-xl border border-gray-300">
+              <h1 class="font-bold my-1">Table Filters:</h1>
+              <form class="flex items-center flex-wrap w-full">
+                <div class="w-full sm:w-auto mr-4">
+                  <select class="p-1 border border-gray-300 rounded-md w-full sm:w-auto" name="category">
+                    <option value="tax_year">Tax Year</option>
+                    <option value="title">Title</option>
+                    <option value="category">Category</option>
+                    <option value="category">Status</option>
+                    <option value="category">User</option>
+                    <!-- Add more options for other filter categories -->
+                  </select>
+                </div>
+                <div class="w-full sm:w-auto mr-4">
+                  <select class="p-1 border border-gray-300 rounded-md w-full sm:w-auto" name="operator">
+                    <option value="equals">is</option>
+                    <option value="not_equals">is not</option>
+                    <!-- Add more options for other operators -->
+                  </select>
+                </div>
+                <div class="w-full sm:w-auto mr-4">
+                  <input class="p-1 border border-gray-300 rounded-md w-full sm:w-auto" type="text" name="value">
+                </div>
+                <div>
+                  <button class="p-1 bg-green-900 rounded-md text-white" type="button" id="add-filter">Add Filter</button>
+                </div>
+              </form>
+              <div class="hero-card-divider"></div>
+              <div id="filters">
+                <!-- Filters will be added here dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-6">
+    <div class="flex items-center justify-between mb-6">
+        {% for user in online_users %}
+        <div class="card bg-white rounded-xl p-3 border border-gray-400 text-sm relative">
+            <div class="card-body">
+                <h5 class="card-title">{{ user.username }}</h5>
+                <p class="card-text">Last active: {{ user.last_login|date:"M/d"}}</p>
+            </div>
+            <div class="absolute top-0 left-0 w-4 h-4 -ml-2 -mt-2 bg-green-500 rounded-full"></div>
+        </div>
+        {% endfor %}
+        <div class="w-128 flex items-center block appearance-none bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline">
+            <label for="tax-year-selector" class="mr-2 font-bold">Tax Year:</label>
+            <select id="tax-year-selector" class="mr-2 text-black block appearance-none px-3 py-1 leading-tight">
+                <option value="2023" class="relative">2023<span class="absolute w-full h-1 bg-blue-500 bottom-0 left-0"></span></option>
+                <option value="2024" class="relative">2024<span class="absolute w-full h-1 bg-blue-500 bottom-0 left-0"></span></option>
+                <option value="2025" class="relative">2025<span class="absolute w-full h-1 bg-blue-500 bottom-0 left-0"></span></option>
+            </select>
+            <div id="total-price-display" class="px-2 py-1 w-32">
+                Total: $100
+            </div>
+        </div>
+    </div>
+    <div class="overflow-x-auto">
+        <table id="tax-entries-table" class="w-full table-auto">
+            <thead>
+                <tr class="bg-green-900 text-white text-left">
+                    <th class="px-4 py-2">#</th>
+                    <th class="px-4 py-2">Date</th>
+                    <th class="px-4 py-2">Tax Year</th>
+                    <th class="px-4 py-2">Title</th>
+                    <th class="px-4 py-2">Category</th>
+                    <th class="px-4 py-2">Total</th>
+                    <th class="px-4 py-2">Status</th>
+                    <th class="px-4 py-2">User</th>
+                </tr>
+            </thead>
+            <tbody id='table-body'>
+                {% for entry in entries %}
+                <tr id="entry-{{entry.pk}}" data-id="{{ entry.pk }}" class="bg-white text-gray-700 hover:bg-gray-100">
+                    <td class="px-4 py-2">{{ forloop.counter }}</td>
+                    <td class="px-4 py-2">{{ entry.created_at|date:"M/d" }}</td>
+                    <td id="tax-year" class="tax-year px-4 py-2">{{ entry.tax_year }}</td>
+                    <td class="px-4 py-2 font-bold">{{ entry.title }}</td>
+                    <td class="px-4 py-2">{{ entry.category.name }}</td>
+                    <td id="total-price" class="total-price px-4 py-2">${{ entry.total_price }}</td>
+                    <td class="px-4 py-2">
+                        <form method="post" action="{% url 'taxes:change_status' entry.pk %}">
+                            {% csrf_token %}
+                            <div class="relative">
+                                <select name="status" onchange="this.form.submit()" 
+                                class="
+                                    {% if entry.status.name == 'Fulfilled' %} bg-green-500 {% endif %}
+                                    {% if entry.status.name == 'Pending Receipt' %} bg-purple-500 {% endif %}
+                                    {% if entry.status.name == 'Pending Repayment' %} bg-blue-500 {% endif %}
+                                    {% if entry.status.name == 'Rejected' %} bg-red-500 {% endif %}
+                                    text-white rounded-xl block appearance-none w-full px-4 py-2 pr-8 leading-tight
+                                    ">
+                                    <option value="Fulfilled" {% if entry.status.name == 'Fulfilled' %}selected{% endif %} class="bg-green-300">Fulfilled</option>
+                                    <option value="Pending Receipt" {% if entry.status.name == 'Pending Receipt' %}selected{% endif %} class="bg-purple-300">Pending Receipt</option>
+                                    <option value="Pending Repayment" {% if entry.status.name == 'Pending Repayment' %}selected{% endif %} class="bg-blue-300">Pending Repayment</option>
+                                    <option value="Rejected" {% if entry.status.name == 'Rejected' %}selected{% endif %} class="bg-red-300">Rejected</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M14.707 7.293a1 1 0 0 0-1.414-1.414L10 8.586 6.707 5.293a1 1 0 0 0-1.414 1.414l4 4a1 1 0 0 0 1.414 0l4-4z"/></svg>
+                                </div>
+                            </div>
+                        </form>
+                    </td>
+                    <td class="px-4 py-2">{{ entry.user.username }}</td>
+                </tr>
+                {% empty %}
+                <tr class="bg-white text-green-700">
+                    <td class="px-4 py-2 text-center" colspan="4">No items found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <button id="add-item-btn" class="fixed bottom-4 right-4 rounded-full bg-green-900 hover:bg-black text-white p-4">
+        <svg class="w-6 h-6" viewBox="0 0 24 24">
+            <rect x="10" y="3" width="4" height="18" fill="white"></rect>
+            <rect x="3" y="10" width="18" height="4" fill="white"></rect>
+        </svg>
+    </button>
+    <!-- Modal -->
+    <div id="add-entry-modal" class="hidden modal fixed inset-0 z-50 overflow-auto bg-gray-900 bg-opacity-50 flex justify-center items-center">
+        <div class="modal-content p-8 h-3/4 bg-white rounded-lg shadow-lg">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold">Add Entry</h2>
+            <button id="close-modal-btn" class="text-gray-700 hover:text-gray-900 cursor-pointer">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="h-96 overflow-y-scroll">
+            <form id="add-entry-form" method="POST" action="{% url 'taxes:create_entry' %}">
+              {% csrf_token %}
+              {{ entry_form|crispy }}
+              <button id="add-entry-btn" type="submit" class="bg-green-900 text-white py-2 px-4 rounded">Submit</button>
+            </form>
+          </div>
+        </div>
+    </div>
+  
+    <!-- Modal -->
+    <div class="hidden fixed z-10 inset-0 overflow-y-auto" id="details-modal">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-10 sm:align-middle sm:w-2/3">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 contenteditable="true" oninput="submitTitle(this.innerText, '{{ csrf_token }}')" class="outline-none text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                Modal Title
+                            </h3>
+                            <div class="mt-2">
+                                <p contenteditable="true" oninput="submitDescription(this.innerText, '{{ csrf_token }}')" class="text-sm leading-5 text-gray-500" id="modal-message">
+                                    Modal Message
+                                </p>
+                            </div>
+                            <form id="entry-details-form" class="mt-6">
+                                {% csrf_token %}
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="flex flex-wrap mb-6">
+                                        <div class="w-full">
+                                            <label class="block text-gray-700 font-bold mb-2" for="user">
+                                            User:
+                                            </label>
+                                            <select class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="user-input" name="user">
+                                                {% for user in users %}
+                                                    <option value="{{ user.username }}">{{ user.username }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                <div class="flex flex-wrap mb-6">
+                                    <div class="w-full">
+                                        <label class="block text-gray-700 font-bold mb-2" for="category">
+                                            Category
+                                        </label>
+                                        <select class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="category-input" name="category">
+                                            {% for category in categories %}
+                                                <option value="{{ category.name }}">{{ category.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap mb-6">
+                                    <div class="w-full">
+                                        <label class="block text-gray-700 font-bold mb-2" for="tax-year">
+                                        Tax Year:
+                                        </label>
+                                        <div class="relative">
+                                            <select class="block appearance-none w-full border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:shadow-outline" id="tax-year-input" name="tax-year">
+                                               
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-7a1 1 0 00-1 1v5a1 1 0 102 0V4a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap mb-6">
+                                    <div class="w-full">
+                                        <label class="block text-gray-700 font-bold mb-2" for="total-price">
+                                        Total Price:
+                                        </label>
+                                        <input class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="total-price-input" name="total-price" type="decimal" placeholder="Enter total price">
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap mb-6">
+                                    <div class="w-full">
+                                        <label class="block text-gray-700 font-bold mb-2" for="purchase-date">
+                                        Purchase Date:
+                                        </label>
+                                        <input class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="purchase-date-input" name="purchase-date" type="date" placeholder="Enter purchase date">
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap mb-6">
+                                    <div class="w-full">
+                                        <label class="block text-gray-700 font-bold mb-2" for="status">
+                                        Status:
+                                        </label>
+                                        <select class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="status-input" name="status">
+                                            {% for status in statuses %}
+                                                <option value="{{ status.name }}">{{ status.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap mb-6">
+                                    <div class="w-full">
+                                        <label class="block text-gray-700 font-bold mb-2" for="payment-method">
+                                            Payment Method:
+                                        </label>
+                                        <select class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="payment-method-input" name="payment-method">
+                                            {% for method in payment_methods %}
+                                                <option value="{{ method.name }}">{{ method.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap mb-6">
+                                    <div class="w-full">
+                                        <label class="block text-gray-700 font-bold mb-2" for="payment-method">
+                                            Created At:
+                                        </label>
+                                        <p id="created-at-input"></p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap mb-6">
+                                    <div id="my-dropzone" class="dropzone w-full"></div>
+                                </div>
+                                <div>
+                                    <button id="load-image-button" class="bg-blue-500 hover:bg-blue-600 rounded-md p-2">
+                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+                                            <path d="M5 7h14M5 11h14M5 15h14" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div>
+                                </div>
+                                <div class="flex flex-wrap">
+                                    <div class="w-full text-right">
+                                        <button class="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                                        Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>    
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <span class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
+                    <form method="post" id="delete-form">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2">
+                            Delete
+                        </button>
+                    </form>
+                    <button type="button" class="bg-gray-500 hover:bg-green-500 text-white font-bold py-2 px-4 mr-2 rounded ml-auto">
+                        Export
+                    </button>
+                   
+                    <button id="modal-cancel-button" type="button" class="bg-gray-500 hover:bg-green-500 text-white font-bold py-2 px-4 rounded ml-auto">
+                        Cancel
+                    </button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div id="image-overaly" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+        <!-- Overlay div -->
+        <div class="absolute inset-0 bg-gray-900 opacity-70 cursor-pointer" id="overlay"></div>
+        
+        <!-- Image container -->
+        <div class="absolute inset-0 left-0 w-1/2 h-full flex items-center justify-center" id="image-container-wrapper">
+          <img id="image-container" class="hidden max-w-full max-h-full object-contain" src="" alt="Image">
+        </div>
+    </div>
+</div>
+<script>
+    const taxYearSelector = document.getElementById('tax-year-selector');
+    const taxEntriesTable = document.getElementById('tax-entries-table');
+    const totalPriceColumn = 1; // Index of the total price column
+    const modalCloseBtn = document.getElementById('modal-cancel-button');
+    var rowId = 0;
+    var rowid = 0;
+    var pathToImage;
+    const loadImageButton = document.getElementById('load-image-button');
+    const imageContainer = document.getElementById('image-container');
+    const imageOverlay = document.getElementById('image-overaly');
+
+    function getCookie(name) {
+        var value = "; " + document.cookie;
+        var parts = value.split("; " + name + "=");
+        if (parts.length == 2) return parts.pop().split(";").shift();
+      }
+    let myDropzone = null;
+
+    const createDropzone = () => {
+        myDropzone = new Dropzone('#my-dropzone', {
+          url: "my/path",
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken")
+          },
+          paramName: "file",
+          maxFiles: 1,
+          maxFilesize: 5, // in MB
+          acceptedFiles: ".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg",
+          dictDefaultMessage: "Drop files here or click to upload",
+          dictMaxFilesExceeded: "You can only upload one file",
+          dictInvalidFileType: "Invalid file type. Only PDF, Word, Excel, and image files are allowed",
+          dictFileTooBig: "File is too big. Maximum file size is 5 MB",
+          autoProcessQueue: false, // disable auto-upload
+          init: function() {
+            var myDropzone = this;
+      
+            // Process the queue when the form is submitted
+            document.querySelector('form').addEventListener("submit", function(event) {
+              event.preventDefault();
+              event.stopPropagation();
+              myDropzone.processQueue();
+            });
+      
+            this.on("success", function(file, response) {
+              // Handle successful file upload
+            });
+      
+            this.on("error", function(file, errorMessage) {
+              // Handle file upload error
+            });
+          }
+        });
+      };
+    
+    createDropzone();
+    
+    loadImageButton.addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent the form from submitting and page from refreshing
+      
+        console.log(pathToImage);
+        fetch(`/media/${pathToImage}`)
+          .then(function(response) {
+            if (response.ok) {
+              return response.blob();
+            }
+            throw new Error('Network response was not ok.');
+          })
+          .then(function(blob) {
+            const imageUrl = URL.createObjectURL(blob);
+            imageContainer.src = imageUrl;
+            imageContainer.classList.remove('hidden')
+            imageOverlay.classList.remove('hidden')
+          })
+          .catch(function(error) {
+            console.error('There was a problem with the fetch operation:', error);
+          });
+      });
+      imageOverlay.addEventListener('click', function() {
+        imageContainer.classList.add('hidden');
+        imageOverlay.classList.add('hidden');
+      });
+
+    modalCloseBtn.addEventListener('click', function() {
+        const detailsModal = document.getElementById('details-modal');
+        console.log('modal clicked')
+        detailsModal.classList.add('hidden');
+    });
+
+    const rows = document.querySelectorAll('tr');
+    rows.forEach(row => {
+        row.addEventListener('click', function() {
+          // get the id of entry in the clicked row
+          const id = row.getAttribute('data-id');
+          rowid = id
+          console.log(rowid)
+          
+          if (myDropzone) {
+            myDropzone.destroy();
+          }
+          
+          createDropzone();
+          
+          myDropzone.options.url = `/taxes/dashboard/update/${rowid}/receipt`;
+          
+                
+          fetch(`/taxes/dashboard/get/${id}/`)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Network response was not ok.');
+            })
+            .then(data => {
+                const detailsModal = document.getElementById('details-modal');
+                const modalTitle = document.getElementById('modal-title');
+                const modalDesc = document.getElementById('modal-message');
+                const userInput = document.getElementById('user-input');
+                const totalPriceInput = document.getElementById('total-price-input');
+                const categoryInput = document.getElementById('category-input');
+                const pruchaseDateInput = document.getElementById('purchase-date-input');
+                const statusInput = document.getElementById('status-input');
+                const paymentMethodInput = document.getElementById('payment-method-input');
+                const taxYearInput = document.getElementById('tax-year-input');
+                const startYear = data.tax_year;
+                const endYear = startYear - 10;
+                let yearS = new Date().getFullYear();
+        
+                pathToImage = data.img
+
+                for (let year = yearS; year >= endYear; year--) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    taxYearInput.appendChild(option);
+                }
+                detailsModal.classList.remove('hidden');
+                modalTitle.innerHTML = data.title;
+                modalDesc.innerHTML = data.description;
+                var options = userInput.querySelectorAll('option');
+                for (let i = 0; i < options.length; i++) {
+                  var option = options[i];
+                  if (option.value === data.user) {
+                    // Set the "selected" attribute on the matching option element
+                    option.setAttribute('selected', '');
+                    // Set the value of the select element to the value of the matching option
+                    userInput.value = option.value;
+                  } else {
+                    // Remove the "selected" attribute from other option elements
+                    option.removeAttribute('selected');
+                  }
+                }
+                var options = categoryInput.querySelectorAll('option');
+                for (let i = 0; i < options.length; i++) {
+                  var option = options[i];
+                  if (option.value === data.category) {
+                    // Set the "selected" attribute on the matching option element
+                    option.setAttribute('selected', '');
+                    // Set the value of the select element to the value of the matching option
+                    categoryInput.value = option.value;
+                  } else {
+                    // Remove the "selected" attribute from other option elements
+                    option.removeAttribute('selected');
+                  }
+                }
+                totalPriceInput.value = data.total_price;
+                pruchaseDateInput.value = data.purchase_date;
+                var options = statusInput.querySelectorAll('option');
+                for (let i = 0; i < options.length; i++) {
+                  var option = options[i];
+                  if (option.value === data.status) {
+                    // Set the "selected" attribute on the matching option element
+                    option.setAttribute('selected', '');
+                    // Set the value of the select element to the value of the matching option
+                    statusInput.value = option.value;
+                  } else {
+                    // Remove the "selected" attribute from other option elements
+                    option.removeAttribute('selected');
+                  }
+                }
+                var options = paymentMethodInput.querySelectorAll('option');
+                for (let i = 0; i < options.length; i++) {
+                  var option = options[i];
+                  if (option.value === data.payment_method) {
+                    // Set the "selected" attribute on the matching option element
+                    option.setAttribute('selected', '');
+                    // Set the value of the select element to the value of the matching option
+                    paymentMethodInput.value = option.value;
+                  } else {
+                    // Remove the "selected" attribute from other option elements
+                    option.removeAttribute('selected');
+                  }
+                }
+                const createdAtInput = document.getElementById('created-at-input');
+                createdAtInput.innerHTML = data.created_at;
+                
+            })
+            .catch(error => {
+                console.error('Request failed:', error);
+            });
+        });
+    });
+
+    // TAX YEAR TOTAL CALCULATION 
+    taxYearSelector.addEventListener('change', () => {
+      const selectedYear = taxYearSelector.value;
+      let total = 0;
+      console.log(selectedYear)
+    
+      // Loop through each row in the table and sum up the total price for rows that match the selected tax year
+      for (let i = 1; i < taxEntriesTable.rows.length; i++) {
+        let row = taxEntriesTable.rows[i];
+        const taxYear = row.querySelector('#tax-year').textContent;
+        const totalPrice = row.querySelector('.total-price').textContent.replace('$', '');
+        if (taxYear === selectedYear) {
+          total += Number(totalPrice);
+        }
+      }
+    
+      // Update the display of the total price
+      const totalPriceDisplay = document.getElementById('total-price-display');
+      totalPriceDisplay.textContent = `$${total}`;
+    });
+
+    function submitTitle(content, csrfToken) {
+        // make a POST request to submit the data
+        console.log(content)
+        console.log(csrfToken)
+        fetch(`/taxes/dashboard/update/${rowid}/title`, {
+            method: 'POST',
+            body: JSON.stringify({ title: content }),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+        })
+        .catch(error => {
+            console.error(error);
+        });
+    }
+
+    function submitDescription(content, csrfToken) {
+        // make a POST request to submit the data
+        console.log(content)
+        console.log(csrfToken)
+        fetch(`/taxes/dashboard/update/${rowid}/description`, {
+            method: 'POST',
+            body: JSON.stringify({ description: content }),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+        })
+        .catch(error => {
+            console.error(error);
+        });
+    }
+
+    const deleteForm = document.getElementById('delete-form');
+    deleteForm.onsubmit = function (event) {
+        event.preventDefault();  //
+        console.log(rowid)
+        const csrfToken = deleteForm.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        fetch(`/taxes/dashboard/delete/${rowid}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+            window.location.reload();
+            return response.json();
+        })
+        .then(data => {
+
+            console.log(data);
+        })
+        .catch(error => {
+            console.error(error);
+        });
+    };
+
+    const updateForm = document.querySelector('#entry-details-form');
+
+
+    
+// Call processQueue on form submit
+updateForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const csrfToken = updateForm.querySelector('input[name="csrfmiddlewaretoken"]').value;
+    const formData = new FormData(updateForm);
+    console.log(formData);
+
+    myDropzone.options.headers = {
+        'X-CSRFToken': csrfToken,
+    };
+    myDropzone.processQueue();  // Call processQueue here
+
+    fetch(`/taxes/dashboard/update/${rowid}/body`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': csrfToken,
+        }
+    })
+    .then(response => {
+        console.log(response);
+        return response.json();
+    })
+    .then(data => {
+        console.log(data);
+        location.reload(true);
+    })
+    .catch(error => {
+        console.error(error);
+    });
+});
+
+
+
+      
+
+</script>
+{% include 'taxes/spending_chart.html' %}
+{% include 'taxes/add_entry.html' %}
+{% endblock %}

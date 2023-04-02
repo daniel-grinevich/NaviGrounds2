@@ -1,0 +1,94 @@
+<script>
+    // get references to the button, modal, and form elements
+    const addItemBtn = document.getElementById('add-item-btn');
+    const modal = document.getElementById('add-entry-modal');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const form = document.getElementById('entry-form');
+
+    // add a click event listener to the button to show the modal
+    addItemBtn.addEventListener('click', function() {
+        console.log('Add Item Clicked')
+        modal.classList.remove('hidden');
+    });
+
+    closeModalBtn.addEventListener('click', function() {
+        console.log('Hide Modal Clicked')
+        modal.classList.add('hidden');
+    });
+
+    
+    function updateTable(data) {
+        // Get the table body element
+        var tableBody = document.getElementById('table-body');
+      
+        // Clear the existing rows
+        tableBody.innerHTML = '';
+        console.log(data.length)
+        // Loop through the data and create a new row for each item
+        for (var i = 0; i < data.length; i++) {
+          var newRow = document.createElement('tr');
+          console.log(data[i])
+          var titleCell = document.createElement('td');
+          titleCell.innerText = data[i].title;
+          newRow.appendChild(titleCell);
+      
+          tableBody.appendChild(newRow);
+        }
+    }
+
+
+    document.getElementById('add-entry-form').addEventListener('submit', function(event) {
+        // prevent default form submission behavior
+        event.preventDefault();
+
+        // serialize form data
+        var formData = new FormData(this);
+        console.log(formData)
+
+        // send AJAX request
+        $.ajax({
+            url: '{% url 'taxes:create_entry'%}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                // check to see if object was created successfully 
+                if (data.success) {
+                    // append new object to table
+                    console.log(data.title)
+                    updateTable(data);
+
+                    // hide modal 
+                    modal.classList.add('hidden');
+                }
+                else {
+                    alert('Error in creating object!');
+                }
+
+            },
+            error: function() {
+                alert('Error creating object!');
+            }
+        });
+
+    });
+
+
+
+    // add a submit event listener to the form to handle the form submission
+    $(function() {
+        $('#add-item-btn').click(function() {
+            $('#modal').removeClass('hidden');
+        });
+        $('#new-entry-form').submit(function(e) {
+            e.preventDefault();
+            $.post('{% url "admin:login" %}', $(this).serialize(), function(response) {
+                if (response.success) {
+                window.location.reload();
+                }
+            });
+        });
+    });
+
+</script>

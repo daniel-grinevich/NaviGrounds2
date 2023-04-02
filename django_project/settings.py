@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     #Local
     'pages.apps.PagesConfig',
     'accounts.apps.AccountsConfig',
+    'taxes.apps.TaxesConfig',
 ]
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
@@ -137,6 +138,9 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = 'media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
